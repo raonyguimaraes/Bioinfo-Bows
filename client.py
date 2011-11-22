@@ -43,14 +43,34 @@ class RunBlast:
     sql = "SELECT text_value FROM process_param WHERE process_id = 150 AND name = 'fasta';"
     
     sql = "SELECT * FROM process WHERE application_code = '%s';" % ('triptofano')
+  
+  def get_fasta(self, job):
+    sql = "SELECT text_value FROM process_param WHERE process_id = 150 AND name = 'fasta';"
     
+  
   def process(self, job):
     #change status to running!
-    print "Changing status from job"
+    print "Changing status from job!"
     self.change_status(job['id'], 2)
-    #command = 'blastall -i <query> -d /home/cenabid/db/uniprot_11_2011 -p blastp -o saida -F F -a 4 -m'
+    
+    
+    fasta = self.get_fasta(job)
+    file=open("seq","w")
+    for i in fasta:
+      file.write(i)
+    file.close()
+    
+    
+    #command = 'blastall -i seq -d /home/cenabid/db/uniprot_11_2011 -p blastp -o saida -F F -a 4 -m'
+    command = 'blastall -i seq -d /home/cenabid/db/uniprot_11_2011 -p blastp -o saida -F F -a 4 -m 8'
+    
+    os.system(command)
     #os.system("ls -l")
-    #os.system(command)
+  def get_fasta(self, job):
+    sql = "SELECT text_value FROM process_param WHERE process_id = '%s' AND name = 'fasta';" % (job['id'])
+    cursor.execute(sql)
+    jobs = cursor.fetchall()
+    
   
   def main(self):
     print "Main"
@@ -60,7 +80,7 @@ class RunBlast:
     for job in jobs:
       print "Processing Job: %s " % (job['id'])
       self.process(job)
-    
+      
     #select from database
     #run blast with data
     
